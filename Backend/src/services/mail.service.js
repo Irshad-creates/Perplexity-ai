@@ -29,8 +29,8 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 10000,
 });
 
-// transporter 
-// .verify()  
+// transporter
+// .verify()
 // .then(() => { console.log("✅ Email transporter is ready"); }) //
 //  .catch((err) => { console.error("❌ Email transporter verification failed", err);  });
 
@@ -46,12 +46,17 @@ export async function sendEmail({ to, subject, html, text = "" }) {
   console.log("Attempting to send email...");
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    transporter
+      .sendMail(mailOptions)
+      .then((info) => {
+        console.log("EMAIL SENT SUCCESSFULLY");
+        console.log(info.response);
+      })
+      .catch((error) => {
+        console.error("FULL EMAIL ERROR:", error);
+      });
 
-    console.log("EMAIL SENT SUCCESSFULLY");
-    console.log(info);
-
-    return `✅ Email sent successfully to ${to}`;
+    return `✅ Email request triggered for ${to}`;
   } catch (error) {
     console.error("FULL EMAIL ERROR:", error);
 
