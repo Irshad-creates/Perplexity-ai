@@ -8,7 +8,7 @@ export const initailizeSocketConnection = (dispatch, addMessageAction) => {
         return socket;
     }
 
-    socket = io("http://localhost:3000", {
+    socket = io("https://perplexity-ai-l2kb.onrender.com", {
         withCredentials: true,
     });
 

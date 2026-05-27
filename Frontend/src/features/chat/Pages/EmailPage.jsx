@@ -53,7 +53,7 @@ const EmailPage = () => {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:3000/api/email/send",
+        "https://perplexity-ai-l2kb.onrender.com/api/email/send",
         formData,
       );
 
