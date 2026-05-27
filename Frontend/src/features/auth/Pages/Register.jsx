@@ -11,26 +11,34 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
-    e.preventDefault();
+
+    e.preventDefault()
 
     try {
-      setLoading(true);
 
-      const data = await register({
-        username,
-        email,
-        password,
-      });
+        setLoading(true)
 
-      console.log(data);
+        await register({
+            username,
+            email,
+            password
+        })
 
-      navigate("/login");
+        alert("Registration Successful")
+
+        navigate("/login")
+
     } catch (err) {
-      console.log(err);
+
+        alert(
+            err.response?.data?.message || "Registration Failed"
+        )
+
     } finally {
-      setLoading(false);
+
+        setLoading(false)
     }
-  }
+}
 
   return (
     <section className="bg-zinc-950 min-h-screen text-zinc-100 px-4 py-10">
