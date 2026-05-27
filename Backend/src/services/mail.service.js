@@ -15,6 +15,9 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   family: 4,
+  requireTLS: true,
+  ignoreTLS: false,
+  
   auth: {
     type: "OAuth2",
     user: process.env.GOOGLE_USER,
