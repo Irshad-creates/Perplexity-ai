@@ -31,7 +31,7 @@ export async function registerUser (req, res){
         html : `
                 <p>hii ${username},</p>
                 <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
-                <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
+                <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
                 <p>Best regards,<br>The Perplexity by IRSHAD</p>
         `
     }) 
@@ -70,7 +70,7 @@ export async function verifyEmail(req, res) {
                 <h1>Email verified succesfully</h1>
                 <p>Your Email is Verified. You can now log in to your account </p>
     
-                <a href="http://localhost:3000/login">Go To Login</a>
+                <a href="https://perplexity-ai-l2kb.onrender.com/login">Go To Login</a>
             `
         
         return res.send(html);
