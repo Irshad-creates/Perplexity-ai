@@ -6,8 +6,8 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 
 import authRouter from "./Routes/auth.routes.js"
-import chatRouter from "./routes/chat.routes.js"
-import emailRoutes from "./routes/email.routes.js";
+import chatRouter from "./Routes/chat.routes.js"
+import emailRoutes from "./Routes/email.routes.js";
 
 const app = express()
 
