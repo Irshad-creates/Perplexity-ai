@@ -29,18 +29,18 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 10000,
 });
 
-transporter
-  .verify()
-  .then(() => {
-    console.log("✅ Email transporter is ready");
-  })
-  .catch((err) => {
-    console.error("❌ Email transporter verification failed", err);
-  });
+// transporter
+//   .verify()
+//   .then(() => {
+//     console.log("✅ Email transporter is ready");
+//   })
+//   .catch((err) => {
+//     console.error("❌ Email transporter verification failed", err);
+//   });
 
 export async function sendEmail({ to, subject, html, text = "" }) {
   const mailOptions = {
-    from: process.env.GOOGLE_USER,
+    from: process.env.BREVO_USER,
     to,
     subject,
     html,
