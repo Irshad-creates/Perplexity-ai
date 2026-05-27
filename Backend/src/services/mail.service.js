@@ -40,7 +40,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail({ to, subject, html, text = "" }) {
   const mailOptions = {
-    from: process.env.BREVO_USER,
+    from:"irshaddevelops@gmail.com",
     to,
     subject,
     html,
