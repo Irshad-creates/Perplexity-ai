@@ -4,56 +4,55 @@ import { sendEmail } from "../services/mail.service.js"
 import { blacklistModel } from "../models/blacklist.model.js"
 
 export async function registerUser(req, res) {
+  try {
+
+    console.log("REGISTER HIT");
 
     const { username, email, password } = req.body
 
     const isAlreadyExist = await userModel.findOne({
-        $or: [{ email }, { username }]
+      $or: [
+        { email },
+        { username }
+      ]
     })
 
     if (isAlreadyExist) {
-        return res.status(400).json({
-            message: "User with this email or username already exist",
-            success: false,
-            err: "user already exists"
-        })
+      return res.status(400).json({
+        message: "User with this email or username already exist",
+        success: false,
+        err: "user already exists"
+      })
     }
 
-    // TEMPORARY AUTO VERIFY
     const user = await userModel.create({
-        username,
-        email,
-        password,
-        verified: true
+      username,
+      email,
+      password,
+      verified: true
     })
 
-    // EMAIL VERIFICATION TEMPORARILY DISABLED
+    console.log("USER CREATED:", user);
 
-    // const emailVerificationToken = jwt.sign({
-    //     email: user.email
-    // }, process.env.JWT_SECRET)
-
-    // await sendEmail({
-    //     to: email,
-    //     subject: "Welcome to perplexity!",
-    //     html: `
-    //             <p>hii ${username},</p>
-    //             <p>Thank you for registering at <strong>Perplexity by Irshad</strong>.</p>
-    //             <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}">
-    //                 Verify Email
-    //             </a>
-    //     `
-    // })
-
-    res.status(201).json({
-        message: "user registered successfully",
-        success: true,
-        user: {
-            id: user._id,
-            username: user.username,
-            email: user.email
-        }
+    return res.status(201).json({
+      message: "user registered successfully",
+      success: true,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
     })
+
+  } catch (err) {
+
+    console.error("REGISTER ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    })
+  }
 }
 
 export async function verifyEmail(req, res) {
