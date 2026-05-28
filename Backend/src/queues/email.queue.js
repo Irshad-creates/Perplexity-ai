@@ -27,12 +27,19 @@ export const emailQueue = new Queue("emailQueue", {
  * @param {string} [jobData.text]
  */
 export async function addEmailToQueue({ to, subject, html, text }) {
+  // Set a 5-second timeout for adding jobs to the queue to prevent API routes from hanging
+  // if Redis is unreachable or reconnecting.
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Queue addition timed out (Redis might be unreachable)")), 5000)
+  );
+
   try {
-    const job = await emailQueue.add("sendEmail", { to, subject, html, text });
+    const jobPromise = emailQueue.add("sendEmail", { to, subject, html, text });
+    const job = await Promise.race([jobPromise, timeoutPromise]);
     console.log(`[EmailQueue] Job ${job.id} successfully added for recipient: ${to}`);
     return job;
   } catch (error) {
-    console.error(`[EmailQueue] Failed to queue email to ${to}:`, error);
+    console.error(`[EmailQueue] Failed to queue email to ${to}:`, error.message);
     throw error;
   }
 }

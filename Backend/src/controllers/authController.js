@@ -25,16 +25,30 @@ export async function registerUser (req, res){
         email : user.email
     },process.env.JWT_SECRET)
 
-    await addEmailToQueue({
-        to : email,
-        subject : "Welcome to perplexity!",
-        html : `
-                <p>hii ${username},</p>
-                <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
-                <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
-                <p>Best regards,<br>The Perplexity by IRSHAD</p>
-        `
-    }) 
+    try {
+        await addEmailToQueue({
+            to : email,
+            subject : "Welcome to perplexity!",
+            html : `
+                    <p>hii ${username},</p>
+                    <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
+                    <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
+                    <p>Best regards,<br>The Perplexity by IRSHAD</p>
+            `
+        }) 
+    } catch (queueError) {
+        console.error("[Register] Failed to queue verification email:", queueError.message);
+        return res.status(201).json({
+            message: "User registered successfully, but verification email could not be sent due to a server error.",
+            success: true,
+            emailError: true,
+            user: {
+                id: user._id,
+                username: user.username,
+                email : user.email
+            }
+        });
+    }
 
     res.status(201).json({
         message:"user registered succesfully",

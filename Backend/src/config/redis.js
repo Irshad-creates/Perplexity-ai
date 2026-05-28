@@ -9,9 +9,18 @@ dotenv.config();
  * We must set `maxRetriesPerRequest: null` for BullMQ compatibility.
  */
 export function getRedisConnection() {
-  if (process.env.REDIS_URL) {
-    console.log("[Redis Config] Using REDIS_URL for connection.");
-    const conn = new Redis(process.env.REDIS_URL, {
+  let redisUrl = process.env.REDIS_URL;
+  if (redisUrl) {
+    // Automatically switch from redis:// to rediss:// for remote connections (like Upstash) to enable SSL/TLS.
+    // This prevents connection drops (ECONNRESET) and hanging promises.
+    if (redisUrl.startsWith("redis://") && !redisUrl.includes("127.0.0.1") && !redisUrl.includes("localhost")) {
+      redisUrl = redisUrl.replace("redis://", "rediss://");
+      console.log("[Redis Config] Upgraded REDIS_URL to use SSL (rediss://) for remote host.");
+    } else {
+      console.log("[Redis Config] Using REDIS_URL for connection.");
+    }
+    
+    const conn = new Redis(redisUrl, {
       maxRetriesPerRequest: null,
     });
     conn.on("error", (err) => {
