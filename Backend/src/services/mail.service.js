@@ -14,19 +14,10 @@ const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
   secure: false,
-
   auth: {
     user: process.env.BREVO_USER,
     pass: process.env.BREVO_PASS,
   },
-
-  tls: {
-    rejectUnauthorized: false,
-  },
-
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
 });
 
 // transporter
@@ -36,7 +27,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail({ to, subject, html, text = "" }) {
   const mailOptions = {
-    from: "irshaddevelops@gmail.com",
+    from: process.env.BREVO_USER,
     to,
     subject,
     html,
@@ -46,20 +37,14 @@ export async function sendEmail({ to, subject, html, text = "" }) {
   console.log("Attempting to send email...");
 
   try {
-    transporter
-      .sendMail(mailOptions)
-      .then((info) => {
-        console.log("EMAIL SENT SUCCESSFULLY");
-        console.log(info.response);
-      })
-      .catch((error) => {
-        console.error("FULL EMAIL ERROR:", error);
-      });
+    const info = await transporter.sendMail(mailOptions);
 
-    return `✅ Email request triggered for ${to}`;
+    console.log("EMAIL SENT:", info);
+
+    return info;
   } catch (error) {
-    console.error("FULL EMAIL ERROR:", error);
+    console.log("EMAIL ERROR:", error);
 
-    throw new Error(`Email send failed: ${error.message}`);
+    throw error;
   }
 }
