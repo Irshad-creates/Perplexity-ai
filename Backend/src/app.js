@@ -35,4 +35,14 @@ app.use("/api/auth", authRouter)
 app.use("/api/chats", chatRouter)
 app.use("/api/email", emailRoutes);
 
+// Global Error Handler Middleware
+app.use((err, req, res, next) => {
+    console.error("[Global Error Handler] Detected Error:", err);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "Internal Server Error",
+        error: err.stack
+    });
+});
+
 export default app
