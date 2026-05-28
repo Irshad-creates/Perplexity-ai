@@ -1,6 +1,6 @@
 import userModel from "../models/user.model.js"
 import jwt from 'jsonwebtoken'
-import { sendEmail } from "../services/mail.service.js"
+import { addEmailToQueue } from "../queues/email.queue.js"
 import { blacklistModel } from "../models/blacklist.model.js"
 
 export async function registerUser (req, res){
@@ -25,7 +25,7 @@ export async function registerUser (req, res){
         email : user.email
     },process.env.JWT_SECRET)
 
-    await sendEmail({
+    await addEmailToQueue({
         to : email,
         subject : "Welcome to perplexity!",
         html : `

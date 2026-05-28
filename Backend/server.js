@@ -2,6 +2,8 @@ import app from "./src/app.js";
 import connectToDb from "./src/config/database.js";
 import http from "http"
 import { initSocket } from "./src/Sockets/server.socket.js";
+import "./src/workers/email.worker.js";
+
 
 const httpServer = http.createServer(app)
 initSocket(httpServer)

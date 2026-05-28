@@ -1,4 +1,4 @@
-import { sendEmail } from "../services/mail.service.js";
+import { addEmailToQueue } from "../queues/email.queue.js";
 import { generateEmail } from "../services/ai.service.js";
 
 export async function handleSendEmail(req, res) {
@@ -15,7 +15,7 @@ export async function handleSendEmail(req, res) {
       subject,
       prompt,
     });
-    const response = await sendEmail({
+    await addEmailToQueue({
       to,
       subject,
       html: `
@@ -27,7 +27,7 @@ export async function handleSendEmail(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: response,
+      message: "Email queued successfully for background processing.",
     });
   } catch (error) {
     console.error(error);
