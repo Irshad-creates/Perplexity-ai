@@ -19,22 +19,22 @@ export async function registerUser (req, res){
         })
     }
 
-    const user = await userModel.create({ username, email, password, verified: true })
+    const user = await userModel.create({ username, email, password  })
 
-    // const emailVerificationToken = jwt.sign({
-    //     email : user.email
-    // },process.env.JWT_SECRET)
+    const emailVerificationToken = jwt.sign({
+        email : user.email
+    },process.env.JWT_SECRET)
 
-    // await sendEmail({
-    //     to : email,
-    //     subject : "Welcome to perplexity!",
-    //     html : `
-    //             <p>hii ${username},</p>
-    //             <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
-    //             <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
-    //             <p>Best regards,<br>The Perplexity by IRSHAD</p>
-    //     `
-    // }) 
+    await sendEmail({
+        to : email,
+        subject : "Welcome to perplexity!",
+        html : `
+                <p>hii ${username},</p>
+                <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
+                <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
+                <p>Best regards,<br>The Perplexity by IRSHAD</p>
+        `
+    }) 
 
     res.status(201).json({
         message:"user registered succesfully",
