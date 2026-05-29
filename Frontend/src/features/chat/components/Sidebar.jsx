@@ -1,8 +1,11 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setCurrentChatId } from "../features/chat/chat.slice";
 
 const Sidebar = ({ chats, openChat, handleLogout }) => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const initials = user?.username
     ?.split(" ")
@@ -85,6 +88,9 @@ const Sidebar = ({ chats, openChat, handleLogout }) => {
 
       <NavLink
         to="/chats/new"
+        onClick={() => {
+          dispatch(setCurrentChatId(null));
+        }}
         className={({
           isActive,
         }) => `w-full flex items-center gap-3 pl-2 py-2 mb-4 rounded-lg transition-all duration-200
