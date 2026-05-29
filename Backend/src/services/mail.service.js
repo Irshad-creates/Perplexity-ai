@@ -1,38 +1,40 @@
-import nodemailer from "nodemailer";
+import brevo from "@getbrevo/brevo";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  connectionTimeout: 60000,
-  greetingTimeout: 60000,
-  socketTimeout: 60000,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS,
-  },
-});
+const apiInstance = new brevo.TransactionalEmailsApi();
 
-console.log("SMTP USER:", process.env.BREVO_SMTP_USER);
-console.log("SMTP PASS EXISTS:", !!process.env.BREVO_SMTP_PASS);
+apiInstance.setApiKey(
+  brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY,
+);
 
 export async function sendEmail({ to, subject, html }) {
   try {
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to,
-      subject,
-      html,
-    });
+    const email = new brevo.SendSmtpEmail();
 
-    console.log("📧 Email Sent:", info.messageId);
+    email.sender = {
+      email: process.env.EMAIL_FROM,
+      name: "Perplexity by Irshad",
+    };
 
-    return info;
+    email.to = [
+      {
+        email: to,
+      },
+    ];
+
+    email.subject = subject;
+    email.htmlContent = html;
+
+    const response = await apiInstance.sendTransacEmail(email);
+
+    console.log("📧 Email Sent:", response.body?.messageId || "Success");
+
+    return response;
   } catch (error) {
-    console.error("❌ Email Error:", error);
+    console.error("❌ Email Error:", error.response?.body || error.message);
     throw error;
   }
 }
