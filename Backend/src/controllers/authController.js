@@ -34,7 +34,7 @@ export async function registerUser(req, res) {
       html: `
                     <p>hii ${username},</p>
                     <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
-                    <a href="https://perplexity-ai-irshad.vercel.app/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
+                    <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
                     <p>Best regards,<br>The Perplexity by IRSHAD</p>
             `,
     });
@@ -73,11 +73,13 @@ export async function verifyEmail(req, res) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await userModel.findOne({ email: decoded.email });
+    const user = await userModel.findOne({
+      email: decoded.email,
+    });
 
     if (!user) {
       return res.status(400).json({
-        message: "invaild token",
+        message: "invalid token",
         success: false,
         err: "user not found",
       });
@@ -86,23 +88,15 @@ export async function verifyEmail(req, res) {
     user.verified = true;
     await user.save();
 
-    const html = `
-                <h1>Email verified succesfully</h1>
-                <p>Your Email is Verified. You can now log in to your account </p>
-    
-                <a href="https://perplexity-ai-l2kb.onrender.com/login">Go To Login</a>
-            `;
-
-    return res.send(html);
+    return res.redirect("https://perplexity-ai-irshad.vercel.app/login");
   } catch (err) {
     return res.status(400).json({
-      message: "invaild or expired token",
+      message: "invalid or expired token",
       success: false,
       err: err.message,
     });
   }
 }
-
 export async function loginUser(req, res) {
   const { email, password } = req.body;
 
