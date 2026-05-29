@@ -1,173 +1,195 @@
 import { useEffect } from "react";
 import { initailizeSocketConnection } from "../services/chat.socket";
-import { sendMessage, getChats, getMessages, deleteChats } from "../services/chat.api";
-import {setChats, setCurrentChatId, setLoading, setError, createNewChat , updateChatTitle , addNewMessage, addMessages , setGenerating, appendToMessage } from "../chat.slice"
-import { useDispatch, useSelector } from "react-redux"
+import {
+  sendMessage,
+  getChats,
+  getMessages,
+  deleteChats,
+} from "../services/chat.api";
+import {
+  setChats,
+  setCurrentChatId,
+  setLoading,
+  setError,
+  createNewChat,
+  updateChatTitle,
+  addNewMessage,
+  addMessages,
+  setGenerating,
+  appendToMessage,
+} from "../chat.slice";
+import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 
 let socketInitialized = false;
 
-export const useChat = ()=>{
-    
-    const dispatch = useDispatch()
-    const currentChatId = useSelector((state) => state.chat.currentChatId)
+export const useChat = () => {
+  const dispatch = useDispatch();
+  const currentChatId = useSelector((state) => state.chat.currentChatId);
 
-    // Initialize socket only once
-    useEffect(() => {
-        if (!socketInitialized) {
-            initailizeSocketConnection(dispatch, addNewMessage);
-            socketInitialized = true;
-        }
-    }, [dispatch])
+  // Initialize socket only once
+  useEffect(() => {
+    if (!socketInitialized) {
+      initailizeSocketConnection(dispatch, addNewMessage);
+      socketInitialized = true;
+    }
+  }, [dispatch]);
 
-    async function handleSendMessage({ message, chatId }) {
+  async function handleSendMessage({ message, chatId }) {
+    try {
+      dispatch(setGenerating(true));
 
-        try {
+      let finalChatId = chatId;
 
-            dispatch(setGenerating(true))
+      // Existing chats ke liye instant user message
+      if (chatId) {
+        dispatch(
+          addNewMessage({
+            chatId: finalChatId,
+            content: message,
+            role: "user",
+          }),
+        );
+      }
 
-            let finalChatId = chatId
+      const data = await sendMessage({ message, chatId });
+      console.log("SEND MESSAGE RESPONSE:", data);
 
-            // Existing chats ke liye instant user message
-            if (chatId) {
+      const { chat: newChat, aiMessage } = data;
 
-                dispatch(addNewMessage({
-                    chatId: finalChatId,
-                    content: message,
-                    role: "user"
-                }))
-            }
+      finalChatId = chatId || newChat._id;
 
-            const data = await sendMessage({ message, chatId })
+      // New chat create
+      if (!chatId) {
+        dispatch(
+          createNewChat({
+            chatId: finalChatId,
+            title: "Generating...",
+          }),
+        );
 
-            const { chat: newChat, aiMessage } = data
+        dispatch(setCurrentChatId(finalChatId));
 
-            
+        // New chat user message
+        dispatch(
+          addNewMessage({
+            chatId: finalChatId,
+            content: message,
+            role: "user",
+          }),
+        );
+      }
 
-            finalChatId = chatId || newChat._id
+      // Empty AI message
+      dispatch(
+        addNewMessage({
+          chatId: finalChatId,
+          content: "",
+          role: "ai",
+        }),
+      );
 
+      // Streaming effect
+      const words = aiMessage.content.split(" ");
 
-            // New chat create
-            if (!chatId) {
+      for (const word of words) {
+        dispatch(
+          appendToMessage({
+            chatId: finalChatId,
+            content: word + " ",
+          }),
+        );
 
-                dispatch(createNewChat({
-                    chatId: finalChatId,
-                    title: "Generating..."
-                }))
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      }
 
-                dispatch(setCurrentChatId(finalChatId))
+      // Update title
+      if (newChat?.title) {
+        dispatch(
+          updateChatTitle({
+            chatId: finalChatId,
+            title: newChat.title,
+          }),
+        );
+      }
 
-                // New chat user message
-                dispatch(addNewMessage({
-                    chatId: finalChatId,
-                    content: message,
-                    role: "user"
-                }))
-            }
+      dispatch(setGenerating(false));
+    } catch (err) {
+      console.error(`❌ Error sending message:`, err.message);
 
-            // Empty AI message
-            dispatch(addNewMessage({
-                chatId: finalChatId,
-                content: "",
-                role: "ai"
-            }))
+      dispatch(setError(err.message));
 
-            // Streaming effect
-            const words = aiMessage.content.split(" ")
+      dispatch(setGenerating(false));
+    }
+  }
 
-            for (const word of words) {
+  async function handleGetChats() {
+    dispatch(setLoading(true));
+    const data = await getChats();
+    const { chats } = data;
+    dispatch(
+      setChats(
+        chats.reduce((acc, chat) => {
+          acc[chat._id] = {
+            id: chat._id,
+            title: chat.title,
+            messages: [],
+            lastUpdated: chat.updatedAt,
+          };
+          return acc;
+        }, {}),
+      ),
+    );
+    dispatch(setLoading(false));
+  }
 
-                dispatch(appendToMessage({
-                    chatId: finalChatId,
-                    content: word + " "
-                }))
-
-                await new Promise(resolve =>
-                    setTimeout(resolve, 30)
-                )
-            }
-
-            // Update title
-            dispatch(updateChatTitle({
-                chatId: finalChatId,
-                title: newChat.title
-            }))
-
-            dispatch(setGenerating(false))
-
-        } catch (err) {
-
-            console.error(`❌ Error sending message:`, err.message);
-
-            dispatch(setError(err.message))
-
-            dispatch(setGenerating(false))
-        }
+  async function handleOpenChat(chatId, chats) {
+    // Don't refetch if already viewing this chat
+    if (currentChatId === chatId) {
+      return;
     }
 
-    async function handleGetChats() {
-        dispatch(setLoading(true))
-        const data = await getChats()
-        const { chats } = data
-        dispatch(setChats(chats.reduce((acc, chat)=>{
-            acc[ chat._id]={
-                id :chat._id,
-                title : chat.title,
-                messages : [],
-                lastUpdated: chat.updatedAt,
-            }
-            return acc
-        },{})))
-        dispatch(setLoading(false))
-    }
-    
-    async function handleOpenChat(chatId, chats){
-        // Don't refetch if already viewing this chat
-        if (currentChatId === chatId) {
-            return;
-        }
+    try {
+      dispatch(setLoading(true));
 
-        try {
-            dispatch(setLoading(true))
-            
-            if(chats[ chatId ]?.messages.length === 0){
+      if (chats[chatId]?.messages.length === 0) {
+        const data = await getMessages(chatId);
+        const { messages } = data;
 
-                const data = await getMessages(chatId)
-                const { messages } = data
-                
-                
-                const formattedMessages = messages.map(msg =>({
-                    content : msg.content,
-                    role : msg.role,
-                }))
-                dispatch(addMessages({
-                    chatId,
-                    messages : formattedMessages
-                }))
-            }
-            dispatch(setCurrentChatId(chatId))
-            dispatch(setLoading(false))
-        } catch (err) {
-            console.error(`❌ Error opening chat:`, err.message);
-            dispatch(setError(err.message))
-            dispatch(setLoading(false))
-        }
+        const formattedMessages = messages.map((msg) => ({
+          content: msg.content,
+          role: msg.role,
+        }));
+        dispatch(
+          addMessages({
+            chatId,
+            messages: formattedMessages,
+          }),
+        );
+      }
+      dispatch(setCurrentChatId(chatId));
+      dispatch(setLoading(false));
+    } catch (err) {
+      console.error(`❌ Error opening chat:`, err.message);
+      dispatch(setError(err.message));
+      dispatch(setLoading(false));
     }
+  }
 
-    async function handleDeleteChat(chatId) {
-        try {
-            await deleteChats(chatId)
-            dispatch(removeChat(chatId))
-            toast.success("Chat deleted");
-        } catch (err) {
-            toast.error("Failed to delete chat");
-        }
+  async function handleDeleteChat(chatId) {
+    try {
+      await deleteChats(chatId);
+      dispatch(removeChat(chatId));
+      toast.success("Chat deleted");
+    } catch (err) {
+      toast.error("Failed to delete chat");
     }
+  }
 
-    return {
-        handleSendMessage,
-        handleGetChats,
-        handleOpenChat,
-        handleDeleteChat
-    }
-}
+  return {
+    handleSendMessage,
+    handleGetChats,
+    handleOpenChat,
+    handleDeleteChat,
+  };
+};
