@@ -34,7 +34,7 @@ export async function registerUser(req, res) {
       html: `
                     <p>hii ${username},</p>
                     <p>Thank you for registering at <strong>Perplexity by Irshad</strong>. we're exicted to have you as our user </p>
-                    <a href="https://perplexity-ai-l2kb.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
+                    <a href="https://perplexity-ai-irshad.vercel.app/api/auth/verify-email?token=${emailVerificationToken}"> Verify Email</a>
                     <p>Best regards,<br>The Perplexity by IRSHAD</p>
             `,
     });
