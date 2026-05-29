@@ -12,7 +12,7 @@ const AppLayout = ({ children, chats, openChat, handleLogout}) => {
             <MobileNavbar
                 setIsSidebarOpen={setIsSidebarOpen}
             />
-            <section className='mx-auto flex h-[calc(100vh-1.5rem)] w-full rounded-3xl border-none'>
+            <section className='mx-auto flex h-[calc(100dvh-1.5rem)] w-full rounded-3xl border-none'>
 
                 <div className={`
                         fixed top-0 left-0 z-50 h-full bg-black shadow-2xl
