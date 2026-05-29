@@ -5,22 +5,16 @@ dotenv.config();
 
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS,
   },
 });
 
-// Optional: Verify SMTP connection on server startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("❌ SMTP Error:", error);
-  } else {
-    console.log("✅ Brevo SMTP Connected");
-  }
-});
+console.log("SMTP USER:", process.env.BREVO_SMTP_USER);
+console.log("SMTP PASS EXISTS:", !!process.env.BREVO_SMTP_PASS);
 
 export async function sendEmail({ to, subject, html }) {
   try {
