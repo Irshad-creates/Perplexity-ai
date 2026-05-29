@@ -32,7 +32,14 @@ const Dashboard = () => {
   };
 
   const handleStartChat = (message) => {
-    chat.handleSendMessage({ message, chatId: currentChatId || null });
+    // Dashboard se hamesha new chat start hogi
+    dispatch(setCurrentChatId(null));
+
+    chat.handleSendMessage({
+      message,
+      chatId: null,
+    });
+
     navigate("/chats/new");
     setSearchInput("");
   };
