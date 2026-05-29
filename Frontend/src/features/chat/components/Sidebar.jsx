@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setCurrentChatId } from "../features/chat/chat.slice";
+import { setCurrentChatId } from "../chat.slice.js";
 
 const Sidebar = ({ chats, openChat, handleLogout }) => {
   const dispatch = useDispatch();
