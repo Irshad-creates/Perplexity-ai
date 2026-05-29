@@ -25,7 +25,7 @@ export async function sendMessage(req, res) {
     chat = await chatModel.findById(activeChatId);
   }
 
-  const userMessage = await messageModel.create({
+  await messageModel.create({
     chat: activeChatId,
     content: message,
     role: "user",
@@ -49,7 +49,6 @@ export async function sendMessage(req, res) {
     aiMessage,
   });
 }
-
 export async function getChats(req, res) {
   const user = req.user;
 
