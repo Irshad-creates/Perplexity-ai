@@ -10,7 +10,7 @@ export async function sendEmail({ to, subject, html }) {
       {
         sender: {
           email: process.env.EMAIL_FROM,
-          name: "Perplexity",
+          name: "Perplexity by Irshad",
         },
         to: [
           {
