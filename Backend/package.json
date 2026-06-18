@@ -17,7 +17,7 @@
     "@langchain/mistralai": "^1.0.8",
     "@tavily/core": "^0.7.3",
     "bcryptjs": "^3.0.3",
-    "bullmq": "^5.77.6",
+    "bullmq": "^5.79.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
